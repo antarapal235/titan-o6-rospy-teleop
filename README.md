@@ -2,12 +2,14 @@
 
 Code on titan 6
 
+The Titan 6 project aims to build a two-meter tall, six-legged "light-weight" robot. The challenge in building such a robot lies in its large size, which requires an immense amount of power. Our hope is to build a robot that breaks this curse and is both light and strong.
+
 Included Packages:
 	py_con - python controls with IK, joystick, stand/sit
 	eigenbot - contains eigenbot_drivers
 	titan_base - simple joint space commands for small demos
 
-OPERATING TITAN6
+## OPERATING TITAN6
 
 Batteries:
 	Main batteries - Nominal voltage 50 v, can charge up to 5 amps
@@ -150,3 +152,73 @@ Running Joystick script Manually:
 		If modules turns red, power cycling the robot should fix this 
 		Leg bending inward - If you see a leg bending inward under the center body, try to support the robot best you can and M stop. This position can easily cause the leg to snap
 
+## How it works
+
+Titan 6's software consists of 1) the eigenbot submodule and 2) the pycon submodule. 
+
+### Description of files
+
+1) runPyCon.sh - script that zeroes all of Titan 6's joints (output in tmux window)
+
+2) zeroJoints - bashcript to zero joints 
+
+#### Eigenbot Submodule ####
+
+Make sure to switch branch to Titan.
+
+1) eigenbot/eigenbot_driver/launch - contains launch files
+
+	-eigen_driver.launch
+	-titan_driver.launch - starts 3 nodes for joint control in Titan 6
+
+#### Pycon Submodule ####
+
+1) HRDF - boilerplate data for Titan 6 
+
+2) logs - numerical data
+
+3) Params - parameters referenced when loading gate or hexapod object
+	
+	- bot_params.txt - addresses of all Titan 6's modules 
+
+	- gait_params.txt - dictates how Titan 6 walks and stands 
+
+4) rosbags - contains rosbag files 
+
+5) gait.py - helper class for titan.py to store and execute gaits
+
+	- var inc_per = number of increments within 1 step
+
+	- def comStand = function that commands robot to stand up 
+
+	- def comSit = function that commands robot to sit
+
+	- def smoothSlide = creates points in robots trajectory
+
+	- def hebiTraj = hebi trajectory 
+
+	- def xyz2t = calculates angle of arm 
+
+	- def manStep = activates manual mode where individual pairs of legs can be moved
+
+6) hexapod.py - helper class for titan.py for calculating hexapod kinematics, 'step' behavior, and I/O with robot or simulation
+
+	- def incGait = increments the active gait
+	
+	- def check_coll = shows whether or not robot collides (will be replaced in near future)
+
+	- pubCommands = publishes joint angle commands (to /titan/joint/cmd) as stored in hexapod's [pos]
+
+7) titan.py - main controller node
+
+8) joy_reader.py - helper class for titan.py to handle joystick inputs
+
+9) script_joy.py - node for publishing a scripted series of commands on the /joy channel and replaces use of a physical joystick as an input to titan.py
+
+10) sim_link.py - node which echos communications to give the gazebo simulator the same rostopic interface as eigenbot_driver
+
+11) visual_bot.py - visualization node for sending joint command and feedback states as Markers to be Visualized in rviz (haven’t been used since teleop)
+
+#### TitanBase ####
+
+Will be used for demos.
